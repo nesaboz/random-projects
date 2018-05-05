@@ -1,6 +1,6 @@
 from System.Threading import CancellationTokenSource
 from threading import Event
-import async
+from Basic import async
 
 ThreadControls=[]
 numberOfThreads = 4
@@ -41,12 +41,12 @@ def exampleThread(ThreadID):
 
 
 def exampleProgram():
-	task0=async(exampleThread)(0)
-	task1=async(exampleThread)(1)
+	task0= async(exampleThread)(0)
+	task1= async(exampleThread)(1)
 	cmd.Delay(2)
 	pause(1)
 	cmd.Delay(2)
-	task2=async(exampleThread)(2)
+	task2= async(exampleThread)(2)
 	cmd.Delay(2)
 	resume(1)
 	cmd.Delay(2)
