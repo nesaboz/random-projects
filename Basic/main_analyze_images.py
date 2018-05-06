@@ -30,8 +30,8 @@ def find_files_in_folder(folder):
 
 def find_specific_files_only(list_to_search_in, looking_for):
     """
-    Description: we want to give input a folder and how the file should look like, common name and extension etc.
-    Code will then walk through all folder and store in a list_to_search_in or dict all filenames and pathnames
+    Description: we want to give input face folder and how the file should look like, common name and extension etc.
+    Code will then walk through all folder and store in face list_to_search_in or dict all filenames and pathnames
 
     Parameters
     ----------

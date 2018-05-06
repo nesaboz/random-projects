@@ -7,7 +7,7 @@ numberOfThreads = 4
 for i in range(numberOfThreads):
 	ThreadControls.append([Event(),CancellationTokenSource()])
 
-# use in code wherever you want to allow pausing or cancelling of a thread, you might place that line in every other line of your code :)
+# use in code wherever you want to allow pausing or cancelling of face thread, you might place that line in every other line of your code :)
 def pause_and_cancel_point(ThreadID):
 	ThreadControls[ThreadID][0].wait()
 	ThreadControls[ThreadID][1].Token.ThrowIfCancellationRequested()
