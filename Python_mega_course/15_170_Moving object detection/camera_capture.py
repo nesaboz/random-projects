@@ -37,5 +37,4 @@ while True:
     if key == ord('q'):
         break
 
-
 video.release()
