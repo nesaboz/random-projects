@@ -1,5 +1,6 @@
 import cv2
-from pathlib import Path
+import datetime
+
 
 def resize_image(frame, factor):
     return cv2.resize(frame, (int(frame.shape[1] * factor), int(frame.shape[0] * factor)))
@@ -25,25 +26,49 @@ def scale_object_rectangles(object_rectangles, factor):
     """
     return [[x * factor for x in obj] for obj in object_rectangles]
 
-PATH = Path(__file__).parent
 
-if __name__ == '__main__':
+def capture_video(output_filename):
 
-    # Load the cascade
-    face_cascade = cv2.CascadeClassifier(str(PATH / 'haarcascade_frontalface_default.xml'))
-    transp = False
-    video = cv2.VideoCapture(str(PATH / 'input.mov'))
-    detection_rescale_factor = 5
+    now_str = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    output_filename = f'{now_str}_{output_filename}.mov'
 
-    width, height= int(video.get(3)), int(video.get(4))
+    video = cv2.VideoCapture(0)
+    width, height = int(video.get(3)), int(video.get(4))
+    output = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'mp4v'), 30, (width, height))
 
-    # Define the codec and create VideoWriter object.The output is stored in 'output.avi' file.
-    # Define the fps to be equal to 10. Also frame size is passed.
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    output = cv2.VideoWriter('output.mov', fourcc, 30, (width, height))
+    while True:
+        check, frame = video.read()
+        cv2.imshow("Press q to stop", frame)
+        output.write(frame)
+
+        key = cv2.waitKey(1)
+        if key == ord('q'):
+            break
+
+    video.release()
+    output.relase()
+    cv2.destroyAllWindows()
+
+    return output_filename
+
+
+def detect_face(input_filename, output_filename, transp=False, detection_rescale_factor=5):
+
+    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
+    if input_filename[-4:] != '.mov':
+        input_filename += '.mov'
+    if output_filename[-4:] != '.mov':
+        output_filename += '.mov'
+
+    video = cv2.VideoCapture(input_filename)
+    width, height = int(video.get(3)), int(video.get(4))
+    output = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'mp4v'), 30, (width, height))
+
     # Check if camera opened successfully
     if not video.isOpened():
-        print("Unable to read camera feed")
+        print("Unable to read camera feed.")
+        return
 
     counter = 1
     while True:
@@ -55,7 +80,7 @@ if __name__ == '__main__':
             frame = cv2.transpose(frame)
 
         # make image smaller for faster face detection
-        frame_small = resize_image(frame, 1/detection_rescale_factor)
+        frame_small = resize_image(frame, 1 / detection_rescale_factor)
 
         # covert to grayscale
         gray = cv2.cvtColor(frame_small, cv2.COLOR_BGR2GRAY)
@@ -70,10 +95,10 @@ if __name__ == '__main__':
         frame = add_objects_to_the_frame(frame, faces)
 
         # display
-        cv2.imshow('img', frame)
-        # Stop if escape key is pressed
-        # Press Q on keyboard to stop recording
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        cv2.imshow('Press q to stop', frame)
+
+        key = cv2.waitKey(1)
+        if key == ord('q'):
             break
 
         output.write(frame)
@@ -83,3 +108,6 @@ if __name__ == '__main__':
     cv2.destroyAllWindows()
 
 
+if __name__ == '__main__':
+    filename = capture_video('input')
+    detect_face('input', 'output')
