@@ -1,56 +1,12 @@
 import cv2
-from matplotlib import pyplot as plt
-from matplotlib.patches import Rectangle
+
+def resize_image(frame, factor):
+    return cv2.resize(frame, (int(frame.shape[1] * factor), int(frame.shape[0] * factor)))
 
 
 def add_objects_to_the_frame(frame, objects):
-    """
-    Add rectangles of objects to the image
-
-    Args:
-        frame:
-        objects:
-
-    Returns:
-
-    """
-
     for x, y, w, h in objects:
-        print(x)
         frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-    return frame
-
-
-def detect_object_in_the_frame(frame, detector):
-    """
-    Detects the object using detector and adds them to the image
-
-    Args:
-        frame:
-        detector:
-
-    Returns:
-        object_rectangles:
-    """
-    # convert image to grayscale
-    gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    # detect the object_rectangles
-    object_rectangles = detector.detectMultiScale(gray_img, scaleFactor=1.05, minNeighbors=2)
-    return object_rectangles
-
-
-def resize_image(frame, factor):
-    """
-    Resize image
-
-    Args:
-        frame:
-        factor:
-
-    Returns:
-
-    """
-    frame = cv2.resize(frame, (int(frame.shape[1] * factor), int(frame.shape[0] * factor)))
     return frame
 
 
@@ -69,32 +25,59 @@ def scale_object_rectangles(object_rectangles, factor):
     return [[x * factor for x in obj] for obj in object_rectangles]
 
 
+if __name__ == '__main__':
 
+    # Load the cascade
+    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+    transp = False
+    video = cv2.VideoCapture('input.mov')
+    detection_rescale_factor = 5
 
+    width, height= int(video.get(3)), int(video.get(4))
 
-if __name__ == "__main__":
+    # Define the codec and create VideoWriter object.The output is stored in 'output.avi' file.
+    # Define the fps to be equal to 10. Also frame size is passed.
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    output = cv2.VideoWriter('output.mov', fourcc, 30, (width, height))
+    # Check if camera opened successfully
+    if not video.isOpened():
+        print("Unable to read camera feed")
 
-    # from https://github.com/opencv/opencv/tree/master/data/haarcascades
-    # load face detector
-    face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+    counter = 1
+    while True:
+        check, frame = video.read()
+        if not check:
+            print('End of video')
+            break
+        if transp:
+            frame = cv2.transpose(frame)
 
-    img = cv2.imread("Nenad.jpg")
-    objects = detect_object_in_the_frame(img, face_cascade)
-    img = add_objects_to_the_frame(img, objects)
-    resized = resize_image(img, 0.33)
-    cv2.imshow("Gray", resized)
-    # plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
-    cv2.waitKey(0)
-    # cv2.waitKey(2000)
-    # cv2.destroyAllWindows()
+        # make image smaller for faster face detection
+        frame_small = resize_image(frame, 1/detection_rescale_factor)
 
+        # covert to grayscale
+        gray = cv2.cvtColor(frame_small, cv2.COLOR_BGR2GRAY)
 
+        # detect the faces
+        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
 
+        # resize rectangles to the original image size:
+        faces = scale_object_rectangles(faces, detection_rescale_factor)
 
-    # https://realpython.com/python-matplotlib-guide/
-    # https://matplotlib.org/api/axes_api.html
-    # http://queirozf.com/entries/matplotlib-pylab-pyplot-etc-what-s-the-different-between-these
-    # https://docs.opencv.org/3.1.0/dc/d2e/tutorial_py_image_display.html
+        # draw the rectangle around each face
+        frame = add_objects_to_the_frame(frame, faces)
 
+        # display
+        cv2.imshow('img', frame)
+        # Stop if escape key is pressed
+        # Press Q on keyboard to stop recording
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+        output.write(frame)
+
+    video.release()
+    output.release()
+    cv2.destroyAllWindows()
 
 
