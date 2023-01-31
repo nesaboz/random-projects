@@ -1,4 +1,5 @@
 import cv2
+from pathlib import Path
 
 def resize_image(frame, factor):
     return cv2.resize(frame, (int(frame.shape[1] * factor), int(frame.shape[0] * factor)))
@@ -24,13 +25,14 @@ def scale_object_rectangles(object_rectangles, factor):
     """
     return [[x * factor for x in obj] for obj in object_rectangles]
 
+PATH = Path(__file__).parent
 
 if __name__ == '__main__':
 
     # Load the cascade
-    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+    face_cascade = cv2.CascadeClassifier(str(PATH / 'haarcascade_frontalface_default.xml'))
     transp = False
-    video = cv2.VideoCapture('input.mov')
+    video = cv2.VideoCapture(str(PATH / 'input.mov'))
     detection_rescale_factor = 5
 
     width, height= int(video.get(3)), int(video.get(4))
