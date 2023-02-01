@@ -126,7 +126,8 @@ def test_face_detection():
 
 
 def test_car_detection():
-    # to build our own haar cascade: https://pythonprogramming.net/haar-cascade-object-detection-python-opencv-tutorial/
+    # WIP
+    # TODO to build our own haar cascade: https://pythonprogramming.net/haar-cascade-object-detection-python-opencv-tutorial/
     cascade = cv2.CascadeClassifier('cars.xml')
     frame = np.load('car.npy')
 
@@ -196,10 +197,9 @@ def resize_video(input_filename, output_filename, rescale_factor=5):
 
 if __name__ == '__main__':
     # filename = capture_video('face_input')
-    # detect_video('face_input', 'face_output', 'haarcascade_frontalface_default.xml')
-    # detect_video('essex_at_day', 'essex_at_day_output', 'cars.xml')
+    detect_video('face_input', 'face_output', 'haarcascade_frontalface_default.xml')
 
+    # detect_video('essex_at_day', 'essex_at_day_output', 'cars.xml')
     # test_face_detection()
     # test_car_detection()
-
-    resize_video('essex_at_day', 'essex_by_day_resized', 0.2)
+    # resize_video('essex_at_day', 'essex_by_day_resized', 0.2)
